@@ -17,7 +17,7 @@ export default function AddAdvertisement() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/old-clients");
+        const res = await axios.get(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients`);
         setClients(res.data);
       } catch (err) {
         console.error("Error fetching clients:", err);
@@ -66,7 +66,7 @@ export default function AddAdvertisement() {
     if (formData.message) data.append("message", formData.message);
 
     try {
-      await axios.post("http://localhost:5000/api/ads/upload", data);
+      await axios.post("/api/ads/upload", data);
       setMessage("✅ Advertisement uploaded successfully!");
       setFormData({ clientId: "", file: null, date: "", message: "" });
     } catch (err) {

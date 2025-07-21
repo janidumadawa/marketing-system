@@ -38,14 +38,14 @@ export default function ClientsAnalysis() {
 
   const fetchTopClients = async () => {
     const res = await axios.get(
-      "http://localhost:5000/api/old-clients/top-clients"
+      `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/top-clients`
     );
     setTopClients(res.data);
   };
 
   const fetchSalesByYear = async () => {
     const res = await axios.get(
-      "http://localhost:5000/api/old-clients/sales-by-year"
+      `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/sales-by-year`
     );
     setSalesByYear(
       res.data.map((item) => ({ year: item._id, total: item.total }))
@@ -53,7 +53,7 @@ export default function ClientsAnalysis() {
   };
 
   const fetchTotalSales = async () => {
-    const res = await axios.get("http://localhost:5000/api/old-clients/total", {
+    const res = await axios.get(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/total`, {
       params: { search: filterClient },
     });
 

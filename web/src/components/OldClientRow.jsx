@@ -14,7 +14,7 @@ const OldClientRow = ({ client, className = "", onUpdate, onDelete }) => {
   const handleSave = async () => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/old-clients/${client._id}`,
+        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/${client._id}`,
         editedClient
       );
       onUpdate(res.data);
@@ -28,7 +28,7 @@ const OldClientRow = ({ client, className = "", onUpdate, onDelete }) => {
     if (window.confirm("Are you sure you want to delete this client?")) {
       try {
         await axios.delete(
-          `http://localhost:5000/api/old-clients/${client._id}`
+          `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/${client._id}`
         );
         onDelete(client._id);
       } catch (err) {

@@ -15,7 +15,7 @@ const ManageTargets = () => {
       let query = [];
       if (yearFilter) query.push(`year=${yearFilter}`);
       if (monthFilter) query.push(`month=${monthFilter}`);
-      const url = `http://localhost:5000/api/old-targets/all${
+      const url = `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/all${
         query.length ? "?" + query.join("&") : ""
       }`;
 
@@ -30,7 +30,7 @@ const ManageTargets = () => {
     if (!window.confirm(`Delete target for ${month} ${year}?`)) return;
     try {
       await axios.delete(
-        `http://localhost:5000/api/old-targets?year=${year}&month=${month}`
+        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets?year=${year}&month=${month}`
       );
       setMessage(`✅ Deleted target for ${month} ${year}`);
       fetchTargets(); // Refresh list

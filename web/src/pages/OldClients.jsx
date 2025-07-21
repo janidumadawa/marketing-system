@@ -53,7 +53,7 @@ const OldClients = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost:5000/api/old-clients",
+        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients`,
         {
           params: { search, year, month },
         }
@@ -73,7 +73,7 @@ const OldClients = () => {
       return;
     }
     try {
-      const res = await axios.get("http://localhost:5000/api/old-targets", {
+      const res = await axios.get(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets`, {
         params: { year, month },
       });
       setOldTarget(res.data.target || 0);
@@ -89,7 +89,7 @@ const OldClients = () => {
   const fetchTotal = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/old-clients/total",
+        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/total`,
         {
           params: { year, month, search },
         }
@@ -104,7 +104,7 @@ const OldClients = () => {
   const fetchTotalClientCount = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/old-clients/count",
+        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/count`,
         {
           params: { year, month, search }, // optional filters
         }
@@ -145,7 +145,7 @@ const OldClients = () => {
   const fetchUniqueClientCount = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/old-clients/count-unique",
+        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/count-unique`,
         {
           params: { year, month, search },
         }

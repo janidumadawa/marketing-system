@@ -34,7 +34,7 @@ const AddTarget = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/old-targets", formData);
+      const res = await axios.post(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets`, formData);
       setMessage(`✅ Target ${res.data.target} added/updated for ${res.data.month} ${res.data.year}`);
       setFormData({ year: "", month: "", target: "" });
     } catch (err) {

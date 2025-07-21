@@ -23,7 +23,7 @@ const ClientPage = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/clients");
+        const res = await axios.get(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/clients`);
         setClients(res.data);
       } catch (err) {
         console.error("Error fetching clients:", err);

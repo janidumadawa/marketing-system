@@ -27,7 +27,7 @@ const AdsPage = () => {
     // Fetch ads from backend API
     const fetchAds = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/ads");
+        const res = await axios.get(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/ads`);
         setAds(res.data);
       } catch (err) {
         console.error("Error fetching ads:", err);
