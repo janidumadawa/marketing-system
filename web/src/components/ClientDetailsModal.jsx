@@ -103,7 +103,7 @@ const ClientDetailsModal = ({ client, onClose, onUpdate, onDelete }) => {
     setIsSaving(true);
     try {
       const res = await axios.put(
-        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/clients/${client._id}`,
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/api/clients/${client._id}`,
         formData
       );
       onUpdate(res.data);
@@ -121,7 +121,7 @@ const ClientDetailsModal = ({ client, onClose, onUpdate, onDelete }) => {
     if (!window.confirm("Are you sure you want to delete this client?")) return;
     setIsDeleting(true);
     try {
-      await axios.delete(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/clients/${client._id}`);
+      await axios.delete(`${process.env.REACT_APP_BACKEND_BASE_URL}/api/clients/${client._id}`);
       onDelete(client._id);
       onClose();
     } catch (error) {

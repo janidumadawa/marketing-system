@@ -31,7 +31,7 @@ const TargetsByMonthChart = () => {
 
   const fetchAvailableYears = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/available-years`);
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/available-years`);
       setAvailableYears(res.data);
       if (res.data.length > 0) {
         setSelectedYear(res.data[0]); // Set the latest year as default
@@ -45,7 +45,7 @@ const TargetsByMonthChart = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/targets-by-month?year=${selectedYear}`
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/targets-by-month?year=${selectedYear}`
       );
       setTargetsByMonth(res.data);
     } catch (error) {

@@ -37,7 +37,7 @@ const AddOldClient = () => {
     e.preventDefault();
     try {
       const { clientName, amountSpent, year, month } = formData;
-      await axios.post(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients`, formData);
+      await axios.post(`${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients`, formData);
       setMessage(`✅ Client "${clientName}" added for ${month} ${year}.`);
       setFormData({ clientName: "", amountSpent: "", year: "", month: "" });
     } catch (err) {

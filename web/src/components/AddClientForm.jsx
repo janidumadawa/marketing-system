@@ -35,7 +35,7 @@ const AddClientForm = ({ onClose, onAdd }) => {
   e.preventDefault();
   setIsSubmitting(true);
   try {
-    const response = await axios.post(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/clients`, formData);
+    const response = await axios.post(`${process.env.REACT_APP_BACKEND_BASE_URL}/api/clients`, formData);
     onAdd(response.data);  // send the saved client (with _id etc) back to parent
     onClose();
   } catch (err) {

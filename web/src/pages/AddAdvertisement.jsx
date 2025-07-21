@@ -17,7 +17,7 @@ export default function AddAdvertisement() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients`);
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients`);
         setClients(res.data);
       } catch (err) {
         console.error("Error fetching clients:", err);

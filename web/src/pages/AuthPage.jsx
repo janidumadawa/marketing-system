@@ -26,7 +26,7 @@ const AuthPage = () => {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/auth/login`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginForm),
@@ -46,7 +46,7 @@ const AuthPage = () => {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/auth/register`, {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

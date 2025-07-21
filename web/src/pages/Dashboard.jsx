@@ -37,7 +37,7 @@ export default function Dashboard() {
     const fetchSalesByYear = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/sales-by-year`
+          `${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/sales-by-year`
         );
         setSalesByYear(res.data);
       } catch (error) {
@@ -48,7 +48,7 @@ export default function Dashboard() {
     const fetchTargetsByYear = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/targets-by-year`
+          `${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/targets-by-year`
         );
         setTargetsByYear(res.data);
       } catch (error) {
@@ -69,7 +69,7 @@ export default function Dashboard() {
   const fetchTotalClients = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/count`
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/count`
       );
       setClientCount(res.data.count || 0);
     } catch (err) {
@@ -80,7 +80,7 @@ export default function Dashboard() {
   const fetchTotalSales = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/total`
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/total`
       );
       setTotal(res.data.data.total || 0);
     } catch (err) {
@@ -91,7 +91,7 @@ export default function Dashboard() {
   const fetchOldTarget = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/latest`
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/latest`
       );
       setOldTarget(res.data.target || 0);
     } catch (err) {
@@ -102,7 +102,7 @@ export default function Dashboard() {
   const fetchUniqueClientCount = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/count-unique`
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-clients/count-unique`
       );
       setUniqueClientCount(res.data.data.count || 0);
     } catch (error) {
