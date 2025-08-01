@@ -42,16 +42,7 @@ const Header = ({ toggleSidebar, sidebarOpen }) => {
 
 
         <div className="flex items-center gap-3">
-          <div
-            className="
-            w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500
-            rounded-full flex items-center justify-center
-            shadow-sm
-          "
-          >
-            <User size={16} className="text-white" />
-          </div>
-          
+  
           {/* <button
             onClick={() => navigate("/auth")}
             className="
@@ -65,6 +56,20 @@ const Header = ({ toggleSidebar, sidebarOpen }) => {
           >
             Logout
           </button> */}
+
+          <button
+            onClick={() => navigate("/")}
+            className="
+              bg-gradient-to-r from-blue-500 to-indigo-500
+              text-white px-6 py-2 rounded-full
+              hover:from-blue-600 hover:to-indigo-600
+              transition-all duration-200 transform hover:scale-105
+              shadow-sm hover:shadow-md
+              font-medium
+            "
+          >
+            Back to Home
+          </button>
           
         </div>
       </div>
