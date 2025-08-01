@@ -14,13 +14,16 @@ import AddAdvertisement from "./pages/AddAdvertisement";
 import AddTarget from "./pages/AddTarget";
 import ManageTargets from "./pages/ManageTargets";
 
+import GoToDashboard from "./pages/GoToDashboard";
+
 function App() {
   return (
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<AuthPage />} />
-          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/goto-dashboard" element={<GoToDashboard />} />
+          <Route path="/" element={<GoToDashboard />} />
+          {/* <Route path="/auth" element={<AuthPage />} /> */}
           
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />

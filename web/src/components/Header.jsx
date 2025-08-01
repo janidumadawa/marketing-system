@@ -52,7 +52,7 @@ const Header = ({ toggleSidebar, sidebarOpen }) => {
             <User size={16} className="text-white" />
           </div>
           
-          <button
+          {/* <button
             onClick={() => navigate("/auth")}
             className="
               bg-gradient-to-r from-blue-500 to-indigo-500
@@ -64,7 +64,8 @@ const Header = ({ toggleSidebar, sidebarOpen }) => {
             "
           >
             Logout
-          </button>
+          </button> */}
+          
         </div>
       </div>
     </header>
