@@ -14,7 +14,7 @@ import AddAdvertisement from "./pages/AddAdvertisement";
 import AddTarget from "./pages/AddTarget";
 import ManageTargets from "./pages/ManageTargets";
 
-import GoToDashboard from "./pages/GoToDashboard";
+// import GoToDashboard from "./pages/GoToDashboard";
 
 function App() {
   return (
