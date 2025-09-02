@@ -22,8 +22,8 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/goto-dashboard" element={<GoToDashboard />} />
-          <Route path="/" element={<GoToDashboard />} />
-          {/* <Route path="/auth" element={<AuthPage />} /> */}
+          {/* <Route path="/" element={<GoToDashboard />} /> */}
+          <Route path="/auth" element={<AuthPage />} />
           
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
