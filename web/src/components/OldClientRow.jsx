@@ -148,7 +148,7 @@ const OldClientRow = ({ client, className = "", onUpdate, onDelete }) => {
       </td>
 
       {/* Actions */}
-      <td className="px-6 py-4 text-center">
+      {/* <td className="px-6 py-4 text-center">
         <div className="flex justify-center gap-2">
           {isEditing ? (
             <>
@@ -229,7 +229,7 @@ const OldClientRow = ({ client, className = "", onUpdate, onDelete }) => {
             </>
           )}
         </div>
-      </td>
+      </td> */}
     </tr>
   );
 };
