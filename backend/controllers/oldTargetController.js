@@ -1,3 +1,4 @@
+// backend/controllers/oldTargetController.js
 const OldTarget = require('../models/OldTarget');
 
 exports.getOldTarget = async (req, res) => {
@@ -6,7 +7,13 @@ exports.getOldTarget = async (req, res) => {
     if (!year || !month) {
       return res.status(400).json({ message: 'Year and month are required.' });
     }
-    const targetDoc = await OldTarget.findOne({ year: Number(year), month });
+    
+    const targetDoc = await OldTarget.findOne({ 
+      year: Number(year), 
+      month,
+      user: req.user._id 
+    });
+    
     if (!targetDoc) {
       return res.status(404).json({ message: 'Old target not found for selected month.' });
     }
@@ -16,29 +23,142 @@ exports.getOldTarget = async (req, res) => {
   }
 };
 
-exports.upsertOldTarget = async (req, res) => {
+// Create new target
+exports.createOldTarget = async (req, res) => {
   try {
     const { year, month, target } = req.body;
+    
+    console.log('User making request:', req.user);
+    console.log('Request body:', req.body);
+    
     if (!year || !month || target == null) {
       return res.status(400).json({ message: 'Year, month, and target are required.' });
     }
-    const updated = await OldTarget.findOneAndUpdate(
-      { year: Number(year), month },
-      { target },
-      { upsert: true, new: true }
-    );
-    res.json(updated);
+    
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: 'User not authenticated.' });
+    }
+
+    // Check if target already exists
+    const existingTarget = await OldTarget.findOne({
+      year: Number(year),
+      month,
+      user: req.user._id
+    });
+    
+    if (existingTarget) {
+      return res.status(409).json({ 
+        message: `Target already exists for ${month} ${year}. Use update instead.` 
+      });
+    }
+
+    // Create new target
+    const newTarget = await OldTarget.create({
+      year: Number(year),
+      month,
+      target: Number(target),
+      user: req.user._id
+    });
+    
+    res.status(201).json(newTarget);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error in createOldTarget:', err);
+    res.status(500).json({ 
+      message: err.message,
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
   }
 };
 
-// get all targets, optionally filtered by year and/or month
+// Update existing target
+exports.updateOldTarget = async (req, res) => {
+  try {
+    const { year, month, target } = req.body;
+    
+    console.log('User making request:', req.user);
+    console.log('Request body:', req.body);
+    
+    if (!year || !month || target == null) {
+      return res.status(400).json({ message: 'Year, month, and target are required.' });
+    }
+    
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: 'User not authenticated.' });
+    }
+
+    const updatedTarget = await OldTarget.findOneAndUpdate(
+      { year: Number(year), month, user: req.user._id },
+      { target: Number(target) },
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedTarget) {
+      return res.status(404).json({ 
+        message: `Target not found for ${month} ${year}. Create it first.` 
+      });
+    }
+    
+    res.json(updatedTarget);
+  } catch (err) {
+    console.error('Error in updateOldTarget:', err);
+    res.status(500).json({ 
+      message: err.message,
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
+  }
+};
+
+// Keep existing function for backward compatibility (or remove if not needed)
+exports.upsertOldTarget = async (req, res) => {
+  try {
+    const { year, month, target } = req.body;
+    
+    if (!year || !month || target == null) {
+      return res.status(400).json({ message: 'Year, month, and target are required.' });
+    }
+    
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: 'User not authenticated.' });
+    }
+
+    // Check if target exists first
+    const existingTarget = await OldTarget.findOne({
+      year: Number(year),
+      month,
+      user: req.user._id
+    });
+
+    let result;
+    
+    if (existingTarget) {
+      // Update existing
+      existingTarget.target = Number(target);
+      result = await existingTarget.save();
+    } else {
+      // Create new
+      result = await OldTarget.create({
+        year: Number(year),
+        month,
+        target: Number(target),
+        user: req.user._id
+      });
+    }
+    
+    res.json(result);
+  } catch (err) {
+    console.error('Error in upsertOldTarget:', err);
+    res.status(500).json({ 
+      message: err.message,
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
+  }
+};
+
 exports.getAllOldTargets = async (req, res) => {
   try {
     const { year, month } = req.query;
 
-    const filter = {};
+    const filter = { user: req.user._id };
     if (year) filter.year = Number(year);
     if (month) filter.month = month;
 
@@ -49,7 +169,6 @@ exports.getAllOldTargets = async (req, res) => {
   }
 };
 
-
 exports.deleteOldTarget = async (req, res) => {
   try {
     const { year, month } = req.query;
@@ -57,7 +176,12 @@ exports.deleteOldTarget = async (req, res) => {
       return res.status(400).json({ message: 'Year and month are required.' });
     }
 
-    const result = await OldTarget.findOneAndDelete({ year: Number(year), month });
+    const result = await OldTarget.findOneAndDelete({ 
+      year: Number(year), 
+      month,
+      user: req.user._id 
+    });
+    
     if (!result) {
       return res.status(404).json({ message: 'Target not found to delete.' });
     }
@@ -68,21 +192,17 @@ exports.deleteOldTarget = async (req, res) => {
   }
 };
 
-
-
-
 exports.getTargetsByYear = async (req, res) => {
   try {
     const targetsByYear = await OldTarget.aggregate([
+      { $match: { user: req.user._id } },
       {
         $group: {
           _id: "$year",
           total: { $sum: "$target" }
         }
       },
-      {
-        $sort: { _id: 1 } // Sort by year ascending
-      }
+      { $sort: { _id: 1 } }
     ]);
 
     res.status(200).json(targetsByYear);
@@ -90,7 +210,6 @@ exports.getTargetsByYear = async (req, res) => {
     res.status(500).json({ message: err.message || "Failed to get targets by year" });
   }
 };
-
 
 exports.getTargetsByMonth = async (req, res) => {
   try {
@@ -101,22 +220,21 @@ exports.getTargetsByMonth = async (req, res) => {
     }
 
     const targetsByMonth = await OldTarget.find({ 
-      year: Number(year) 
+      year: Number(year),
+      user: req.user._id 
     }).sort({ month: 1 });
 
-    // Define month order for proper sorting
     const monthOrder = [
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
 
-    // Create a complete array with all months, filling missing ones with 0
     const completeData = monthOrder.map(month => {
       const found = targetsByMonth.find(item => item.month === month);
       return {
         month: month,
         target: found ? found.target : 0,
-        shortMonth: month.substring(0, 3) // For chart display (Jan, Feb, etc.)
+        shortMonth: month.substring(0, 3)
       };
     });
 
@@ -126,11 +244,10 @@ exports.getTargetsByMonth = async (req, res) => {
   }
 };
 
-// Also add this helper function to get available years
 exports.getAvailableYears = async (req, res) => {
   try {
-    const years = await OldTarget.distinct('year');
-    const sortedYears = years.sort((a, b) => b - a); // Descending order
+    const years = await OldTarget.distinct('year', { user: req.user._id });
+    const sortedYears = years.sort((a, b) => b - a);
     res.status(200).json(sortedYears);
   } catch (err) {
     res.status(500).json({ message: err.message || "Failed to get available years" });

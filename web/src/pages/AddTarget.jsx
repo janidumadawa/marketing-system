@@ -1,6 +1,7 @@
+// web/src/pages/AddTarget.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import { oldTargetsAPI } from "../services/api";
 
 const AddTarget = () => {
   const location = useLocation();
@@ -12,14 +13,15 @@ const AddTarget = () => {
     target: "",
   });
 
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (location.state?.edit && location.state?.targetData) {
       const { year, month, target } = location.state.targetData;
       setFormData({ year, month, target });
     }
   }, [location.state]);
-
-  const [message, setMessage] = useState("");
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -33,12 +35,26 @@ const AddTarget = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
+    
     try {
-      const res = await axios.post(`${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets`, formData);
-      setMessage(`✅ Target ${res.data.target} added/updated for ${res.data.month} ${res.data.year}`);
+      const targetData = {
+        ...formData,
+        year: Number(formData.year),
+        target: Number(formData.target)
+      };
+      
+      console.log("Sending target data:", targetData); // Debug log
+      
+      const result = await oldTargetsAPI.upsertOldTarget(targetData);
+      setMessage(`✅ Target Rs.${result.target.toLocaleString()} added/updated for ${result.month} ${result.year}`);
       setFormData({ year: "", month: "", target: "" });
     } catch (err) {
-      setMessage("❌ " + (err.response?.data?.message || err.message));
+      console.error("Error saving target:", err);
+      setMessage("❌ " + (err.message || "Failed to save target"));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,18 +67,16 @@ const AddTarget = () => {
             onClick={() => navigate("/manage-targets")}
             className="text-yellow-700 font-semibold text-sm hover:underline"
           >
-            ← Back to Dashboard
+            ← Back to Targets
           </button>
         </div>
 
         {message && (
-          <div
-            className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium ${
-              message.startsWith("✅")
-                ? "bg-green-100 text-green-800 border-l-4 border-green-500"
-                : "bg-red-100 text-red-800 border-l-4 border-red-500"
-            }`}
-          >
+          <div className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium ${
+            message.startsWith("✅")
+              ? "bg-green-100 text-green-800 border-l-4 border-green-500"
+              : "bg-red-100 text-red-800 border-l-4 border-red-500"
+          }`}>
             {message}
           </div>
         )}
@@ -77,8 +91,9 @@ const AddTarget = () => {
               value={formData.year}
               onChange={handleChange}
               required
+              disabled={loading}
               placeholder="e.g., 2025"
-              className="w-full px-4 py-3 rounded-lg border-2 border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 bg-white"
+              className="w-full px-4 py-3 rounded-lg border-2 border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 bg-white disabled:opacity-50"
             />
           </div>
 
@@ -90,13 +105,12 @@ const AddTarget = () => {
               value={formData.month}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 rounded-lg border-2 border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 bg-white"
+              disabled={loading}
+              className="w-full px-4 py-3 rounded-lg border-2 border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 bg-white disabled:opacity-50"
             >
               <option value="">Select Month</option>
               {months.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
+                <option key={m} value={m}>{m}</option>
               ))}
             </select>
           </div>
@@ -110,17 +124,26 @@ const AddTarget = () => {
               value={formData.target}
               onChange={handleChange}
               required
+              disabled={loading}
               placeholder="e.g., 100000"
-              className="w-full px-4 py-3 rounded-lg border-2 border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 bg-white"
+              className="w-full px-4 py-3 rounded-lg border-2 border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 bg-white disabled:opacity-50"
             />
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-lg transition duration-300"
+            disabled={loading}
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            Save Target
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Saving...
+              </>
+            ) : (
+              "Save Target"
+            )}
           </button>
         </form>
       </div>

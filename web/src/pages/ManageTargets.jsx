@@ -1,52 +1,53 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Target, Plus, Edit, Trash2 } from "lucide-react";
+import { oldTargetsAPI } from "../services/api";
 
 const ManageTargets = () => {
   const [targets, setTargets] = useState([]);
-  const [yearFilter, setYearFilter] = useState(""); // start empty
+  const [yearFilter, setYearFilter] = useState("");
   const [monthFilter, setMonthFilter] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const fetchTargets = async () => {
     try {
-      let query = [];
-      if (yearFilter) query.push(`year=${yearFilter}`);
-      if (monthFilter) query.push(`month=${monthFilter}`);
-      const url = `${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets/all${
-        query.length ? "?" + query.join("&") : ""
-      }`;
-
-      const res = await axios.get(url);
-      setTargets(res.data);
+      setLoading(true);
+      const filters = {};
+      if (yearFilter) filters.year = yearFilter;
+      if (monthFilter) filters.month = monthFilter;
+      
+      const targetsData = await oldTargetsAPI.getAllOldTargets(filters);
+      setTargets(targetsData);
     } catch (err) {
-      setMessage("❌ " + (err.response?.data?.message || err.message));
+      console.error("Error fetching targets:", err);
+      setMessage("❌ " + (err.message || "Failed to load targets"));
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDelete = async (year, month) => {
     if (!window.confirm(`Delete target for ${month} ${year}?`)) return;
+    
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_BACKEND_BASE_URL}/api/old-targets?year=${year}&month=${month}`
-      );
+      await oldTargetsAPI.deleteOldTarget(year, month);
       setMessage(`✅ Deleted target for ${month} ${year}`);
       fetchTargets(); // Refresh list
     } catch (err) {
-      setMessage("❌ " + (err.response?.data?.message || err.message));
+      console.error("Error deleting target:", err);
+      setMessage("❌ " + (err.message || "Failed to delete target"));
     }
   };
 
   useEffect(() => {
     fetchTargets();
-  }, [yearFilter, monthFilter]); // refetch when filters change
+  }, [yearFilter, monthFilter]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50">
       <div className="p-6">
-
         {/* Navigation Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <button
@@ -116,13 +117,11 @@ const ManageTargets = () => {
           {/* Message Display */}
           {message && (
             <div className="mb-6">
-              <div
-                className={`px-4 py-3 rounded-xl text-sm font-medium border-l-4 ${
-                  message.startsWith("✅")
-                    ? "bg-green-50 text-green-800 border-green-500"
-                    : "bg-red-50 text-red-800 border-red-500"
-                }`}
-              >
+              <div className={`px-4 py-3 rounded-xl text-sm font-medium border-l-4 ${
+                message.startsWith("✅")
+                  ? "bg-green-50 text-green-800 border-green-500"
+                  : "bg-red-50 text-red-800 border-red-500"
+              }`}>
                 {message}
               </div>
             </div>
@@ -130,7 +129,17 @@ const ManageTargets = () => {
 
           {/* Data Table */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
-            {targets.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-yellow-600 bg-yellow-50 transition ease-in-out duration-150">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading Targets...
+                </div>
+              </div>
+            ) : targets.length === 0 ? (
               <div className="text-center py-12">
                 <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">

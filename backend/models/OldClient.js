@@ -1,6 +1,6 @@
+// backend/models/OldClient.js
 const mongoose = require('mongoose');
 
-// Only schema definition should be here
 const oldClientSchema = new mongoose.Schema({
   clientName: {
     type: String,
@@ -18,12 +18,18 @@ const oldClientSchema = new mongoose.Schema({
   month: {
     type: String,
     required: true,
-    enum: [  // Validation for months
+    enum: [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ]
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
+}, {
+  timestamps: true
 });
 
-// Only export the model
 module.exports = mongoose.model('OldClient', oldClientSchema);

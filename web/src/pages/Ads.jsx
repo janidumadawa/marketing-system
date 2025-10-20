@@ -55,15 +55,15 @@ const AdsPage = () => {
           {/* Header and Add Button */}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-2">
+              <h1 className="text-3xl font-bold bg-[#023E8A] bg-clip-text text-transparent mb-2">
                 Advertisement Library
               </h1>
             </div>
             <button
               onClick={() => navigate("/add-advertisement")}
-              className="bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-3 px-4 rounded-lg shadow-sm transition duration-300"
+              className="bg-[#023E8A] hover:bg-[#023E8A]/80 text-white font-semibold py-3 px-4 rounded-lg shadow-sm transition duration-300"
             >
-              ➕ Add Advertisement
+              Add Advertisement
             </button>
           </div>
 

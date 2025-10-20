@@ -20,7 +20,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     { icon: FileText, label: "Ads", path: "/ads", count: null },
     {
       icon: UserRoundSearch ,
-      label: "Old Clients",
+      label: "Clients",
       path: "/old-clients",
       count: null,
     },

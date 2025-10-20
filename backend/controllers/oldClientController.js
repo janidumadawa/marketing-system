@@ -1,13 +1,21 @@
-// controllers/oldClientController.js
+// backend/controllers/oldClientController.js
 const OldClient = require('../models/OldClient');
 
+// All functions now include user filtering
 exports.addOldClient = async (req, res) => {
   try {
     const { clientName, amountSpent, year, month } = req.body;
     if (!clientName || !amountSpent || !year || !month) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
-    const client = await OldClient.create({ clientName, amountSpent, year, month });
+    
+    const client = await OldClient.create({ 
+      clientName, 
+      amountSpent, 
+      year, 
+      month,
+      user: req.user._id 
+    });
     res.status(201).json(client);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -17,7 +25,8 @@ exports.addOldClient = async (req, res) => {
 exports.getOldClients = async (req, res) => {
   try {
     const { search, year, month } = req.query;
-    let filter = {};
+    let filter = { user: req.user._id }; // Add user filter
+    
     if (year) filter.year = Number(year);
     if (month) filter.month = month;
     if (search) filter.clientName = { $regex: search, $options: 'i' };
@@ -32,7 +41,8 @@ exports.getOldClients = async (req, res) => {
 exports.calculateTotal = async (req, res) => {
   try {
     const { year, month, search } = req.query;
-    let filter = {};
+    let filter = { user: req.user._id }; // Add user filter
+    
     if (year) filter.year = Number(year);
     if (month) filter.month = month;
     if (search) filter.clientName = { $regex: search, $options: 'i' };
@@ -52,12 +62,19 @@ exports.calculateTotal = async (req, res) => {
 exports.updateOldClient = async (req, res) => {
   try {
     const { id } = req.params;
-    const client = await OldClient.findByIdAndUpdate(id, req.body, {
+    
+    // First check if the client belongs to the user
+    const client = await OldClient.findOne({ _id: id, user: req.user._id });
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found or access denied' });
+    }
+
+    const updatedClient = await OldClient.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true
     });
-    if (!client) return res.status(404).json({ message: 'Client not found' });
-    res.json(client);
+    
+    res.json(updatedClient);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -66,8 +83,14 @@ exports.updateOldClient = async (req, res) => {
 exports.deleteOldClient = async (req, res) => {
   try {
     const { id } = req.params;
-    const client = await OldClient.findByIdAndDelete(id);
-    if (!client) return res.status(404).json({ message: 'Client not found' });
+    
+    // First check if the client belongs to the user
+    const client = await OldClient.findOne({ _id: id, user: req.user._id });
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found or access denied' });
+    }
+
+    await OldClient.findByIdAndDelete(id);
     res.json({ message: 'Client deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -77,7 +100,8 @@ exports.deleteOldClient = async (req, res) => {
 exports.countUniqueClients = async (req, res) => {
   try {
     const { year, month, search } = req.query;
-    let match = {};
+    let match = { user: req.user._id }; // Add user filter
+    
     if (year) match.year = Number(year);
     if (month) match.month = month;
     if (search) match.clientName = { $regex: search, $options: 'i' };
@@ -95,11 +119,11 @@ exports.countUniqueClients = async (req, res) => {
   }
 };
 
-//get all count of clients
 exports.countAllClients = async (req, res) => {
   try {
     const { year, month, search } = req.query;
-    let filter = {};
+    let filter = { user: req.user._id }; // Add user filter
+    
     if (year) filter.year = Number(year);
     if (month) filter.month = month;
     if (search) filter.clientName = { $regex: search, $options: 'i' };
@@ -111,10 +135,10 @@ exports.countAllClients = async (req, res) => {
   }
 };
 
-// Get top 10 clients by total amount spent
 exports.getTopClients = async (req, res) => {
   try {
     const topClients = await OldClient.aggregate([
+      { $match: { user: req.user._id } }, // Add user filter
       {
         $group: {
           _id: "$clientName",
@@ -130,17 +154,17 @@ exports.getTopClients = async (req, res) => {
   }
 };
 
-// Get total amount spent per year (for bar chart)
 exports.getSalesByYear = async (req, res) => {
   try {
     const result = await OldClient.aggregate([
+      { $match: { user: req.user._id } }, // Add user filter
       {
         $group: {
           _id: "$year",
           total: { $sum: "$amountSpent" }
         }
       },
-      { $sort: { _id: 1 } } // ascending by year
+      { $sort: { _id: 1 } }
     ]);
     res.status(200).json(result);
   } catch (err) {
